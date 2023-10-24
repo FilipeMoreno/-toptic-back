@@ -73,3 +73,49 @@ export async function buscarSolicitacoes(
 
   return reply.status(200).send(solicitacoes);
 }
+
+export async function buscarSolicitacoesPorAluno(
+  request: FastifyRequest,
+  reply: FastifyReply
+) {
+  const { id } = request.params;
+
+  const solicitacoes = await prisma.solicitacoes.findMany({
+    where: {
+      aluno_id: id,
+    },
+    include: {
+      Alunos: {
+        include: {
+          Usuario: true,
+        },
+      },
+    },
+  });
+
+  return reply.status(200).send(solicitacoes);
+}
+
+export async function buscarSolicitacoesPorOrientador(
+  request: FastifyRequest,
+  reply: FastifyReply
+) {
+  const { id } = request.params;
+
+  const solicitacoes = await prisma.solicitacoes.findMany({
+    where: {
+      Alunos: {
+        orientador_id: id,
+      },
+    },
+    include: {
+      Alunos: {
+        include: {
+          Usuario: true,
+        },
+      },
+    },
+  });
+
+  return reply.status(200).send(solicitacoes);
+}

@@ -58,3 +58,21 @@ export async function buscaAluno(request: FastifyRequest, reply: FastifyReply) {
 
   return reply.status(200).send(alunos);
 }
+
+export async function buscarAlunoPorId(
+  request: FastifyRequest,
+  reply: FastifyReply
+) {
+  const { id } = request.params;
+
+  const aluno = await prisma.alunos.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      Usuario: true,
+    },
+  });
+
+  return reply.status(200).send(aluno);
+}
