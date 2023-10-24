@@ -1,0 +1,189 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+enum TipoSolicitacao {
+  DEFESA
+  QUALIFICACAO
+}
+
+enum CursoSolicitacao {
+  MESTRADO
+  DOUTORADO
+}
+
+enum TipoBanca {
+  PRESENCIAL
+  REMOTO
+  HIBRIDO
+}
+
+enum TipoUsuario {
+  ALUNO
+  PROFESSOR
+  COORDENADOR
+  SECRETARIA
+  ADMINISTRADOR
+}
+
+model Usuarios {
+  id String @id @default(uuid())
+
+  nome                String
+  nome_social         String?
+  email               String      @unique
+  email_institucional String?     @unique
+  numero_matricula    String      @unique
+  departamento        String
+  senha               String
+  tipo                TipoUsuario
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  Professores Professores?
+  Alunos      Alunos?
+
+  @@map("usuarios")
+}
+
+model Professores {
+  id String @id @default(uuid())
+
+  usuario_id String @unique
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  Usuario Usuarios @relation(fields: [usuario_id], references: [id])
+  Banca   Banca[]
+
+  @@map("professores")
+}
+
+model Alunos {
+  id String @id @default(uuid())
+
+  usuario_id       String   @unique
+  orientador_id    String
+  coorientador1_id String
+  coorientador2_id String
+  data_ingresso    DateTime
+  status           String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  Usuario      Usuarios       @relation(fields: [usuario_id], references: [id])
+  Solicitacoes Solicitacoes[]
+
+  @@map("alunos")
+}
+
+enum Tipo_Membro_Banca {
+  INTERNO
+  EXTERNO
+}
+
+enum TipoAnexos {
+  TEXTO_TRABALHO
+  CURRICULO_LATTES_EXTERNO
+  COMPROVANTE_PUBLICACAO
+  CURRICULO_ESTRANGEIRO
+  OUTROS
+}
+
+model Anexos {
+  id String @id @default(uuid())
+
+  solicitacao_id String
+  tipo_anexo     TipoAnexos
+  nome           String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  Solicitacoes Solicitacoes? @relation(fields: [solicitacao_id], references: [id])
+
+  @@map("anexos")
+}
+
+model Solicitacoes {
+  id       String @id @default(uuid())
+  aluno_id String
+
+  titulo_proposta  String
+  tipo_solicitacao TipoSolicitacao
+  tipo_curso       CursoSolicitacao
+  tipo_banca       TipoBanca
+  local_bloco      String
+  local_sala       String
+  data             DateTime
+  horario          String
+  estado           String           @default("PENDENTE")
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  BancaSolicitacoes BancaSolicitacoes[]
+  Alunos            Alunos              @relation(fields: [aluno_id], references: [id])
+  Anexos            Anexos[]
+
+  @@map("solicitacoes")
+}
+
+model Banca {
+  id String @id @default(uuid())
+
+  professor_id String
+  tipo_membro  Tipo_Membro_Banca
+  suplente     Boolean           @default(false)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  Professores       Professores         @relation(fields: [professor_id], references: [id])
+  BancaSolicitacoes BancaSolicitacoes[]
+
+  @@map("banca")
+}
+
+model BancaExterno {
+  id String @id @default(uuid())
+
+  nome        String
+  email       String
+  instituicao String
+  cpf         String
+  titulo      String
+  estado      String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("banca_externo")
+}
+
+model BancaSolicitacoes {
+  id String @id @default(uuid())
+
+  banca_id         String?
+  banca_externo_id String?
+  solicitacao_id   String
+  extermo          Boolean @default(false)
+
+  solicitacoes Solicitacoes @relation(fields: [solicitacao_id], references: [id])
+  banca        Banca?       @relation(fields: [banca_id], references: [id])
+
+  @@unique([banca_id, solicitacao_id])
+  @@map("banca_solicitacoes")
+}
