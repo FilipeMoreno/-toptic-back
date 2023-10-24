@@ -50,8 +50,9 @@ model Usuarios {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  Professores Professores?
-  Alunos      Alunos?
+  Professores   Professores?
+  Alunos        Alunos?
+  Coordenadores Coordenadores?
 
   @@map("usuarios")
 }
@@ -87,6 +88,22 @@ model Alunos {
   Solicitacoes Solicitacoes[]
 
   @@map("alunos")
+}
+
+model Coordenadores {
+  id String @id @default(uuid())
+
+  usuario_id     String   @unique
+  inicio_mandato DateTime
+  fim_mandato    DateTime
+  status         Boolean  @default(true)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  Usuario Usuarios @relation(fields: [usuario_id], references: [id])
+
+  @@map("coordenadores")
 }
 
 enum Tipo_Membro_Banca {
@@ -179,7 +196,7 @@ model BancaSolicitacoes {
   banca_id         String?
   banca_externo_id String?
   solicitacao_id   String
-  extermo          Boolean @default(false)
+  externo          Boolean @default(false)
 
   solicitacoes Solicitacoes @relation(fields: [solicitacao_id], references: [id])
   banca        Banca?       @relation(fields: [banca_id], references: [id])

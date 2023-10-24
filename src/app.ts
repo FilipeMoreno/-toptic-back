@@ -8,7 +8,12 @@ import {
   solicitacoesRoutes,
   solicitacoesRoutes,
 } from './http/controllers/solicitacoes/routes';
-import { alunosRoutes } from './http/controllers/alunos/routes';
+import { alunosRoutes, alunosRoutes } from './http/controllers/alunos/routes';
+import {
+  coordenadoresRoutes,
+  coordenadoresRoutes,
+} from './http/controllers/coordenadores/routes';
+import { orientadoresRoutes } from './http/controllers/orientadores/routes';
 
 export const app = fastify();
 
@@ -20,6 +25,8 @@ app.register(cors, {
 app.register(usersRoutes);
 app.register(solicitacoesRoutes);
 app.register(alunosRoutes);
+app.register(coordenadoresRoutes);
+app.register(orientadoresRoutes);
 
 app.setErrorHandler((error, _, reply) => {
   if (error instanceof ZodError) {

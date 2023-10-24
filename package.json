@@ -8,6 +8,9 @@
     "build": "tsup src --out-dir build",
     "start": "node build/server.js"
   },
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -25,13 +28,15 @@
     "eslint-plugin-promise": "6.1.1",
     "prettier": "3.0.2",
     "prisma": "5.4.2",
+    "ts-node": "10.9.1",
     "tsup": "7.2.0",
     "tsx": "3.12.7",
     "typescript": "5.2.2"
   },
   "dependencies": {
+    "@faker-js/faker": "8.2.0",
     "@fastify/cors": "8.4.0",
-    "@prisma/client": "5.4.2",
+    "@prisma/client": "5.5.0",
     "dotenv": "16.3.1",
     "fastify": "4.21.0",
     "zod": "3.22.2"
